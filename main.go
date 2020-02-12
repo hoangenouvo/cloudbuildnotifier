@@ -13,10 +13,14 @@ import (
 	"sync"
 
 	"cloud.google.com/go/pubsub"
+	"github.com/joho/godotenv"
 )
 
 func init() {
-	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "overfit-1334-pubsub.json")
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalln("Failed to load env file")
+	}
 }
 
 func main() {
@@ -68,7 +72,7 @@ func pullMsgs(client *pubsub.Client, name string) error {
 }
 
 func PushMessageToChatHangout(message string) error {
-	url := "https://chat.googleapis.com/v1/spaces/AAAAlCn2Qcc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=kAoqTaOy_6jXyY2L-Ql_aA8x0lpJLUTQqABLwSxLvYI="
+	url := os.Getenv("HANGOUT_URL")
 	method := "POST"
 	messageBody := make(map[string]string)
 	messageBody["text"] = message
@@ -105,7 +109,7 @@ func GetGithubInfo(commitRSA string) (githubData GithubInfo, err error) {
 	if err != nil {
 		return GithubInfo{}, err
 	}
-	req.Header.Add("Authorization", "Basic bHhob2FuZzk3OmQ5NWJmZDc3ODEwNWY2YjUzYmEyZjczMTEwZjY4ZWI4OGY1ZmI5NWY=")
+	req.Header.Add("Authorization", fmt.Sprintf("Basic %s", os.Getenv("GITHUB_TOKEN")))
 	res, err := client.Do(req)
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
