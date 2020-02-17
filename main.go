@@ -25,7 +25,7 @@ func init() {
 
 func main() {
 	ctx := context.Background()
-	proj := "overfit-1334"
+	proj := os.Getenv("PROJECT_ID")
 	client, err := pubsub.NewClient(ctx, proj)
 	if err != nil {
 		log.Fatalf("Could not create pubsub Client: %v", err)
@@ -59,7 +59,7 @@ func pullMsgs(client *pubsub.Client, name string) error {
 					return "production"
 				}
 			}()
-			message := fmt.Sprintf("Cloud build for %s has been finished with status %s. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
+			message := fmt.Sprintf("Cloud build for *%s* has been finished with status %s. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
 				buildType, cloudBuildInfo.Status, cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
 				githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
 			err = PushMessageToChatHangout(message)
