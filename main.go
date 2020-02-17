@@ -38,7 +38,6 @@ func main() {
 
 func pullMsgs(client *pubsub.Client, name string) error {
 	var mu sync.Mutex
-	received := 0
 	sub := client.Subscription(name)
 	err := sub.Receive(context.Background(), func(ctx context.Context, msg *pubsub.Message) {
 		msg.Ack()
@@ -47,13 +46,21 @@ func pullMsgs(client *pubsub.Client, name string) error {
 		if err != nil {
 			log.Printf("Got err: %s\n", err)
 		}
-		if cloudBuildInfo.Status == "FAILURE" || cloudBuildInfo.Status == "SUCCESS" {
+		if cloudBuildInfo.Status == "FAILURE" && cloudBuildInfo.Substitutions.REPONAME == "ProjectStrand" &&
+			(cloudBuildInfo.Substitutions.BRANCHNAME == "dev" || cloudBuildInfo.Substitutions.BRANCHNAME == "master") {
 			githubData, err := GetGithubInfo(cloudBuildInfo.Substitutions.COMMITSHA)
 			if err != nil {
 				log.Println(err)
 			}
-			message := fmt.Sprintf("Cloud build has been finished with status %s. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
-				cloudBuildInfo.Status, cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
+			buildType := func() string {
+				if cloudBuildInfo.Substitutions.BRANCHNAME == "dev" {
+					return "nightly"
+				} else {
+					return "production"
+				}
+			}()
+			message := fmt.Sprintf("Cloud build for %s has been finished with status %s. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
+				buildType, cloudBuildInfo.Status, cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
 				githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
 			err = PushMessageToChatHangout(message)
 			if err != nil {
@@ -62,8 +69,6 @@ func pullMsgs(client *pubsub.Client, name string) error {
 		}
 		mu.Lock()
 		defer mu.Unlock()
-		received++
-
 	})
 	if err != nil {
 		return err
@@ -80,8 +85,7 @@ func PushMessageToChatHangout(message string) error {
 	if err != nil {
 		return err
 	}
-	client := &http.Client{
-	}
+	client := &http.Client{}
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(payload))
 	if err != nil {
 		return err
@@ -103,8 +107,7 @@ func GetGithubInfo(commitRSA string) (githubData GithubInfo, err error) {
 	url := fmt.Sprintf("https://api.github.com/repos/trunghlt/ProjectStrand/git/commits/%s", commitRSA)
 	method := "GET"
 
-	client := &http.Client{
-	}
+	client := &http.Client{}
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return GithubInfo{}, err
