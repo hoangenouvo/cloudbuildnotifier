@@ -38,6 +38,7 @@ func main() {
 
 func pullMsgs(client *pubsub.Client, name string) error {
 	var mu sync.Mutex
+	var failureStep string
 	sub := client.Subscription(name)
 	err := sub.Receive(context.Background(), func(ctx context.Context, msg *pubsub.Message) {
 		msg.Ack()
@@ -48,6 +49,11 @@ func pullMsgs(client *pubsub.Client, name string) error {
 		}
 		if cloudBuildInfo.Status == "FAILURE" && cloudBuildInfo.Substitutions.REPONAME == "ProjectStrand" &&
 			(cloudBuildInfo.Substitutions.BRANCHNAME == "dev" || cloudBuildInfo.Substitutions.BRANCHNAME == "master") {
+			for _, step := range cloudBuildInfo.Steps {
+				if step.Status == "FAILURE" {
+					failureStep = step.ID
+				}
+			}
 			githubData, err := GetGithubInfo(cloudBuildInfo.Substitutions.COMMITSHA)
 			if err != nil {
 				log.Println(err)
@@ -59,8 +65,8 @@ func pullMsgs(client *pubsub.Client, name string) error {
 					return "production"
 				}
 			}()
-			message := fmt.Sprintf("Cloud build for *%s* has been finished with status %s. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
-				buildType, cloudBuildInfo.Status, cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
+			message := fmt.Sprintf("Cloud build for *%s* has been finished with status *%s* at step *%s*. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
+				buildType, cloudBuildInfo.Status, failureStep, cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
 				githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
 			err = PushMessageToChatHangout(message)
 			if err != nil {
