@@ -77,10 +77,11 @@ func pullMsgs(client *pubsub.Client, name string) error {
 					githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
 			}
 		}
-
-		err = PushMessageToChatHangout(message)
-		if err != nil {
-			log.Println(err)
+		if message != "" {
+			err = PushMessageToChatHangout(message)
+			if err != nil {
+				log.Println(err)
+			}
 		}
 		mu.Lock()
 		defer mu.Unlock()
