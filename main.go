@@ -37,8 +37,10 @@ func main() {
 }
 
 func pullMsgs(client *pubsub.Client, name string) error {
-	var mu sync.Mutex
-	var failureStep string
+	var (
+		mu                   sync.Mutex
+		failureStep, message string
+	)
 	sub := client.Subscription(name)
 	err := sub.Receive(context.Background(), func(ctx context.Context, msg *pubsub.Message) {
 		msg.Ack()
@@ -48,31 +50,37 @@ func pullMsgs(client *pubsub.Client, name string) error {
 		if err != nil {
 			log.Printf("Got err: %s\n", err)
 		}
-		if cloudBuildInfo.Status == "FAILURE" && cloudBuildInfo.Substitutions.REPONAME == "ProjectStrand" &&
-			(cloudBuildInfo.Substitutions.BRANCHNAME == "dev" || cloudBuildInfo.Substitutions.BRANCHNAME == "master") {
-			for _, step := range cloudBuildInfo.Steps {
-				if step.Status == "FAILURE" {
-					failureStep = step.ID
+		githubData, err := GetGithubInfo(cloudBuildInfo.Substitutions.COMMITSHA)
+		if err != nil {
+			log.Println(err)
+		}
+		if cloudBuildInfo.Substitutions.BRANCHNAME == "dev" || cloudBuildInfo.Substitutions.BRANCHNAME == "master" {
+			if cloudBuildInfo.Substitutions.REPONAME == "superset" && cloudBuildInfo.Status == "SUCCESS" {
+				message = fmt.Sprintf("New version of *superset* is available in https://dev-nightly.actable.ai. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
+					cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
+					githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
+			} else if cloudBuildInfo.Status == "FAILURE" {
+				for _, step := range cloudBuildInfo.Steps {
+					if step.Status == "FAILURE" {
+						failureStep = step.ID
+					}
 				}
+				buildType := func() string {
+					if cloudBuildInfo.Substitutions.BRANCHNAME == "dev" {
+						return "nightly"
+					} else {
+						return "production"
+					}
+				}()
+				message = fmt.Sprintf("Cloud build for *%s* has been finished with status *%s* at step *%s*. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
+					buildType, cloudBuildInfo.Status, failureStep, cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
+					githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
 			}
-			githubData, err := GetGithubInfo(cloudBuildInfo.Substitutions.COMMITSHA)
-			if err != nil {
-				log.Println(err)
-			}
-			buildType := func() string {
-				if cloudBuildInfo.Substitutions.BRANCHNAME == "dev" {
-					return "nightly"
-				} else {
-					return "production"
-				}
-			}()
-			message := fmt.Sprintf("Cloud build for *%s* has been finished with status *%s* at step *%s*. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
-				buildType, cloudBuildInfo.Status, failureStep, cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
-				githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
-			err = PushMessageToChatHangout(message)
-			if err != nil {
-				log.Println(err)
-			}
+		}
+
+		err = PushMessageToChatHangout(message)
+		if err != nil {
+			log.Println(err)
 		}
 		mu.Lock()
 		defer mu.Unlock()
