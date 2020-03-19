@@ -82,6 +82,7 @@ func pullMsgs(client *pubsub.Client, name string) error {
 			if err != nil {
 				log.Println(err)
 			}
+			message = ""
 		}
 		mu.Lock()
 		defer mu.Unlock()
