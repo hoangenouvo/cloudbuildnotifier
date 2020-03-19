@@ -50,7 +50,7 @@ func pullMsgs(client *pubsub.Client, name string) error {
 		if err != nil {
 			log.Printf("Got err: %s\n", err)
 		}
-		githubData, err := GetGithubInfo(cloudBuildInfo.Substitutions.COMMITSHA)
+		githubData, err := GetGithubInfo(cloudBuildInfo.Substitutions.COMMITSHA, cloudBuildInfo.Substitutions.REPONAME)
 		if err != nil {
 			log.Println(err)
 		}
@@ -120,8 +120,8 @@ func PushMessageToChatHangout(message string) error {
 	return nil
 }
 
-func GetGithubInfo(commitRSA string) (githubData GithubInfo, err error) {
-	url := fmt.Sprintf("https://api.github.com/repos/trunghlt/ProjectStrand/git/commits/%s", commitRSA)
+func GetGithubInfo(commitRSA string, repo string) (githubData GithubInfo, err error) {
+	url := fmt.Sprintf("https://api.github.com/repos/trunghlt/%s/git/commits/%s", repo, commitRSA)
 	method := "GET"
 
 	client := &http.Client{}
