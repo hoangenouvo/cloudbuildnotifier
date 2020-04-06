@@ -55,26 +55,40 @@ func pullMsgs(client *pubsub.Client, name string) error {
 			log.Println(err)
 		}
 		if cloudBuildInfo.Substitutions.BRANCHNAME == "dev" || cloudBuildInfo.Substitutions.BRANCHNAME == "master" {
-			if cloudBuildInfo.Substitutions.REPONAME == "superset" && cloudBuildInfo.Status == "SUCCESS" {
-				message = fmt.Sprintf("New version of *superset* is available in https://dev-nightly.actable.ai. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
-					cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
-					githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
-			} else if cloudBuildInfo.Status == "FAILURE" {
-				for _, step := range cloudBuildInfo.Steps {
-					if step.Status == "FAILURE" {
-						failureStep = step.ID
+			switch cloudBuildInfo.Substitutions.REPONAME {
+			case "superset":
+				if cloudBuildInfo.Status == "SUCCESS" {
+					message = fmt.Sprintf("The new version of *actable-dev* was available in https://dev-nightly.actable.ai. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
+						cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
+						githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
+				} else {
+					for _, step := range cloudBuildInfo.Steps {
+						if step.Status != "SUCCESS" {
+							failureStep = step.ID
+						}
 					}
+					message = fmt.Sprintf("The deployment of *actable-dev* on https://dev-nightly.actable.ai has been stopped with status %s at step *%s*. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
+						cloudBuildInfo.Status, failureStep, cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
+						githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
 				}
-				buildType := func() string {
-					if cloudBuildInfo.Substitutions.BRANCHNAME == "dev" {
-						return "nightly"
-					} else {
-						return "production"
+			case "ProjectStrand":
+				if cloudBuildInfo.Status != "SUCCESS" {
+					for _, step := range cloudBuildInfo.Steps {
+						if step.Status != "SUCCESS" {
+							failureStep = step.ID
+						}
 					}
-				}()
-				message = fmt.Sprintf("Cloud build for *%s* has been finished with status *%s* at step *%s*. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
-					buildType, cloudBuildInfo.Status, failureStep, cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
-					githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
+					buildType := func() string {
+						if cloudBuildInfo.Substitutions.BRANCHNAME == "dev" {
+							return "nightly"
+						} else {
+							return "production"
+						}
+					}()
+					message = fmt.Sprintf("Cloud build for *%s* has been finished with status *%s* at step *%s*. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
+						buildType, cloudBuildInfo.Status, failureStep, cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
+						githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
+				}
 			}
 		}
 		if message != "" {
