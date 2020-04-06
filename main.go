@@ -50,6 +50,11 @@ func pullMsgs(client *pubsub.Client, name string) error {
 		if err != nil {
 			log.Printf("Got err: %s\n", err)
 		}
+		for _, step := range cloudBuildInfo.Steps {
+			if step.Status != "SUCCESS" {
+				failureStep = step.ID
+			}
+		}
 		githubData, err := GetGithubInfo(cloudBuildInfo.Substitutions.COMMITSHA, cloudBuildInfo.Substitutions.REPONAME)
 		if err != nil {
 			log.Println(err)
@@ -62,22 +67,12 @@ func pullMsgs(client *pubsub.Client, name string) error {
 						cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
 						githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
 				} else {
-					for _, step := range cloudBuildInfo.Steps {
-						if step.Status != "SUCCESS" {
-							failureStep = step.ID
-						}
-					}
 					message = fmt.Sprintf("The deployment of *actable-dev* on https://dev-nightly.actable.ai has been stopped with status %s at step *%s*. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
 						cloudBuildInfo.Status, failureStep, cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
 						githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
 				}
 			case "ProjectStrand":
 				if cloudBuildInfo.Status != "SUCCESS" {
-					for _, step := range cloudBuildInfo.Steps {
-						if step.Status != "SUCCESS" {
-							failureStep = step.ID
-						}
-					}
 					buildType := func() string {
 						if cloudBuildInfo.Substitutions.BRANCHNAME == "dev" {
 							return "nightly"
