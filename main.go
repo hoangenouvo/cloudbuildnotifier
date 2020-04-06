@@ -66,13 +66,13 @@ func pullMsgs(client *pubsub.Client, name string) error {
 					message = fmt.Sprintf("The new version of *actable-dev* was available in https://dev-nightly.actable.ai. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
 						cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
 						githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
-				} else {
+				} else if cloudBuildInfo.Status == "FAILURE" {
 					message = fmt.Sprintf("The deployment of *actable-dev* on https://dev-nightly.actable.ai has been stopped with status %s at step *%s*. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
 						cloudBuildInfo.Status, failureStep, cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
 						githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
 				}
 			case "ProjectStrand":
-				if cloudBuildInfo.Status != "SUCCESS" {
+				if cloudBuildInfo.Status == "FAILURE" {
 					buildType := func() string {
 						if cloudBuildInfo.Substitutions.BRANCHNAME == "dev" {
 							return "nightly"
