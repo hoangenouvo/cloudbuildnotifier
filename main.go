@@ -51,7 +51,7 @@ func pullMsgs(client *pubsub.Client, name string) error {
 			log.Printf("Got err: %s\n", err)
 		}
 		for _, step := range cloudBuildInfo.Steps {
-			if step.Status != "SUCCESS" {
+			if step.Status == "FAILURE" {
 				failureStep = step.ID
 			}
 		}
