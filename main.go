@@ -31,6 +31,7 @@ func main() {
 		log.Fatalf("Could not create pubsub Client: %v", err)
 	}
 	// Pull messages via the subscription.
+	log.Printf("Starting collect notify from cloudbuild server...")
 	if err := pullMsgs(client, "cloudBuildSub"); err != nil {
 		log.Fatal(err)
 	}

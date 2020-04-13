@@ -1,11 +1,9 @@
-FROM golang:1.13-alpine as dev
-
+FROM golang:1.13-alpine
 RUN apk add --no-cache make git curl build-base
-
-COPY go.mod go.sum main.go models.go overfit-1334-pubsub.json /app/
-
+COPY . /app/
 WORKDIR /app
+RUN mkdir build && cp .env credential.json build/ && CGO_ENABLED=0 GOOS=linux go build -a -o build/cloudbuild github.com/lxhoang97/cloudbuildnotifier
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -o /go/bin/app/cloudbuild cloudbuild
-
-ENTRYPOINT ["/go/bin/app/cloudbuild"]
+FROM alpine:latest as app
+COPY --from=0 app/build .
+CMD ["./cloudbuild"]
