@@ -67,7 +67,7 @@ func pullMsgs(client *pubsub.Client, name string) error {
 						cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
 						githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
 				} else if cloudBuildInfo.Status == "FAILURE" {
-					message = fmt.Sprintf("The deployment of *actable-dev* on https://dev-nightly.actable.ai has been stopped with status %s at step *%s*. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
+					message = fmt.Sprintf("The deployment of *actable-dev* on https://dev-nightly.actable.ai has been stopped with status *%s* at step *%s*. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
 						cloudBuildInfo.Status, failureStep, cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
 						githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)
 				}
