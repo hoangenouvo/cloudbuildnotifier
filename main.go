@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"sync"
+	"time"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/joho/godotenv"
@@ -64,6 +65,7 @@ func pullMsgs(client *pubsub.Client, name string) error {
 			switch cloudBuildInfo.Substitutions.REPONAME {
 			case "superset":
 				if cloudBuildInfo.Status == "SUCCESS" {
+					time.Sleep(6 * time.Minute)
 					message = fmt.Sprintf("The new version of *actable-dev* was available in https://dev-nightly.actable.ai. Detail infomations: ```Repo: %s\nBranch: %s\nCommit message: %s\nCommit Url: %s\nAuthor: %s(%s)\nCommitter:%s(%s)\n```",
 						cloudBuildInfo.Substitutions.REPONAME, cloudBuildInfo.Substitutions.BRANCHNAME, githubData.Message, githubData.HTML_URL,
 						githubData.Author.Name, githubData.Author.Email, githubData.Committer.Name, githubData.Committer.Email)

@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0c7e5f91-3be0-41b0-a9c8-4cb6fc82b4e1" name="Default Changelist" comment="update just notify for dev and prod build with Failure status">
-      <change afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build.sh" afterDir="false" />
+    <list default="true" id="0c7e5f91-3be0-41b0-a9c8-4cb6fc82b4e1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -49,7 +44,6 @@
   </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
@@ -88,20 +82,8 @@
       </list>
     </recent_temporary>
   </component>
-  <component name="ServiceViewManager">
-    <option name="viewStates">
-      <list>
-        <serviceView>
-          <treeState>
-            <expand />
-            <select />
-          </treeState>
-        </serviceView>
-      </list>
-    </option>
-  </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="1" />
+    <option name="version" value="2" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="update just notify for dev and prod build with Failure status" />
@@ -112,10 +94,16 @@
     <MESSAGE value="update" />
     <MESSAGE value="-- update" />
     <MESSAGE value="update message" />
-    <option name="LAST_COMMIT_MESSAGE" value="update message" />
+    <MESSAGE value="-- add entrypoint file / Makefile / update Dockerfile" />
+    <option name="LAST_COMMIT_MESSAGE" value="-- add entrypoint file / Makefile / update Dockerfile" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
+    <environment>
+      <map>
+        <entry key="GOPROXY" value="direct" />
+      </map>
+    </environment>
     <proxy>direct</proxy>
   </component>
   <component name="WindowStateProjectService">
@@ -124,10 +112,10 @@
     </state>
     <state x="2546" y="265" key="#go_build_cloudbuild/0.23.1920.1177/1920.23.1920.1057@1920.23.1920.1057" timestamp="1582079558833" />
     <state x="626" y="293" key="#go_build_cloudbuild/0.23.1920.1177@0.23.1920.1177" timestamp="1581991197678" />
-    <state x="22" y="110" width="1809" height="859" key="CommitChangelistDialog2" timestamp="1586800234315">
+    <state x="22" y="110" width="1809" height="859" key="CommitChangelistDialog2" timestamp="1586800250095">
       <screen x="0" y="23" width="1920" height="1177" />
     </state>
-    <state x="22" y="110" width="1809" height="859" key="CommitChangelistDialog2/0.23.1920.1177/1920.23.1920.1057@0.23.1920.1177" timestamp="1586800234315" />
+    <state x="22" y="110" width="1809" height="859" key="CommitChangelistDialog2/0.23.1920.1177/1920.23.1920.1057@0.23.1920.1177" timestamp="1586800250095" />
     <state x="543" y="214" key="CommitChangelistDialog2/0.23.1920.1177@0.23.1920.1177" timestamp="1586763887448" />
     <state x="158" y="58" key="DiffContextDialog" timestamp="1586800101598">
       <screen x="0" y="23" width="1920" height="1177" />
@@ -189,10 +177,10 @@
       <screen x="0" y="23" width="1920" height="1177" />
     </state>
     <state x="461" y="250" key="SettingsEditor/0.23.1920.1177/1920.23.1920.1057@0.23.1920.1177" timestamp="1584326873547" />
-    <state x="560" y="351" key="Vcs.Push.Dialog.v2" timestamp="1586763890058">
+    <state x="560" y="351" key="Vcs.Push.Dialog.v2" timestamp="1586800515391">
       <screen x="0" y="23" width="1920" height="1177" />
     </state>
-    <state x="560" y="351" key="Vcs.Push.Dialog.v2/0.23.1920.1177/1920.23.1920.1057@0.23.1920.1177" timestamp="1586228412609" />
+    <state x="560" y="351" key="Vcs.Push.Dialog.v2/0.23.1920.1177/1920.23.1920.1057@0.23.1920.1177" timestamp="1586800515391" />
     <state x="560" y="351" key="Vcs.Push.Dialog.v2/0.23.1920.1177@0.23.1920.1177" timestamp="1586763890058" />
     <state width="910" height="564" key="XDebugger.FullValuePopup" timestamp="1581409530861">
       <screen x="0" y="23" width="1920" height="1177" />
