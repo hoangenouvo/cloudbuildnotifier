@@ -47,7 +47,6 @@ func pullMsgs(client *pubsub.Client, name string) error {
 	err := sub.Receive(context.Background(), func(ctx context.Context, msg *pubsub.Message) {
 		msg.Ack()
 		var cloudBuildInfo CloudBuildInfo
-		log.Printf(string(msg.Data))
 		err := json.Unmarshal(msg.Data, &cloudBuildInfo)
 		if err != nil {
 			log.Printf("Got err: %s\n", err)
@@ -77,6 +76,9 @@ func pullMsgs(client *pubsub.Client, name string) error {
 			case "ProjectStrand":
 				if cloudBuildInfo.Status == "FAILURE" {
 					buildType := func() string {
+						if cloudBuildInfo.Substitutions.NAMESPACE == "test" {
+							return "unit-testing"
+						}
 						if cloudBuildInfo.Substitutions.BRANCHNAME == "dev" {
 							return "nightly"
 						} else {
